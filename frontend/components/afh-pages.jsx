@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { CONNECTORS, INSIGHTS, PROJECTS, ROLES } from '@/lib/afh-data';
 import { Button, ConnectorBadge, Icon, ModeBadge, PageWrap, SectionTitle, StatCard } from '@/components/afh-ui';
+import { useI18n } from '@/components/i18n';
 
 // afh-pages.jsx — Connectors, Roles & Prompts, Skills, Projects, Insights
 
@@ -16,11 +17,12 @@ const ConnectorDot = ({ status }) => {
 };
 
 const ConnectorCard = ({ connector }) => {
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const [testState, setTestState] = useState(null); // null | 'testing' | 'ok' | 'fail'
   const [hov, setHov] = useState(false);
 
-  const statusLabel = { connected: 'Connected', rate_limited: 'Rate Limited', disconnected: 'Disconnected', error: 'Error' };
+  const statusLabel = { connected: t('pages.connected'), rate_limited: t('pages.rateLimited'), disconnected: t('pages.disconnected'), error: t('pages.error') };
   const statusColor = { connected: 'var(--status-success)', rate_limited: 'var(--status-warning)', disconnected: 'var(--text-muted)', error: 'var(--status-error)' };
 
   const runTest = () => {
@@ -44,9 +46,9 @@ const ConnectorCard = ({ connector }) => {
           </div>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
             <span style={{ fontSize: 12, color: statusColor[connector.status], fontWeight: 500 }}>{statusLabel[connector.status]}</span>
-            {connector.latencyAvg && <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>Latency: {connector.latencyAvg} avg</span>}
+            {connector.latencyAvg && <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>{t('pages.latency', { latency: connector.latencyAvg })}</span>}
             {connector.error && <span style={{ fontSize: 12, color: 'var(--status-error)' }}>{connector.error}</span>}
-            {connector.resetIn && <span style={{ fontSize: 12, color: 'var(--status-warning)' }}>Resets in {connector.resetIn}</span>}
+            {connector.resetIn && <span style={{ fontSize: 12, color: 'var(--status-warning)' }}>{t('pages.resetsIn', { time: connector.resetIn })}</span>}
           </div>
         </div>
 
@@ -65,9 +67,9 @@ const ConnectorCard = ({ connector }) => {
         {/* Actions */}
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <Button variant="ghost" size="sm" onClick={runTest} disabled={testState === 'testing'} icon={testState === 'testing' ? 'refresh' : 'activity'}>
-            {testState === 'testing' ? 'Testing…' : testState === 'ok' ? '✓ OK' : testState === 'fail' ? '✗ Failed' : 'Test'}
+            {testState === 'testing' ? t('pages.testing') : testState === 'ok' ? `✓ ${t('pages.ok')}` : testState === 'fail' ? `✗ ${t('pages.failed')}` : t('pages.test')}
           </Button>
-          <Button variant="secondary" size="sm" icon="settings" onClick={() => setExpanded(e => !e)}>Configure</Button>
+          <Button variant="secondary" size="sm" icon="settings" onClick={() => setExpanded(e => !e)}>{t('pages.configure')}</Button>
         </div>
       </div>
 
@@ -77,37 +79,37 @@ const ConnectorCard = ({ connector }) => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             {/* Connection */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>Connection</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>{t('pages.connection')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div>
-                  <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Endpoint</label>
+                  <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('pages.endpoint')}</label>
                   <input defaultValue={connector.endpoint} style={{ width: '100%', background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--text-primary)', fontFamily: 'JetBrains Mono, monospace', outline: 'none', boxSizing: 'border-box' }}
                     onFocus={e => e.target.style.borderColor = 'var(--accent)'}
                     onBlur={e => e.target.style.borderColor = 'var(--border)'} />
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>API Key</label>
+                  <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('pages.apiKey')}</label>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <input defaultValue="••••••••••••••••••••••••" type="password" style={{ flex: 1, background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--text-primary)', fontFamily: 'JetBrains Mono, monospace', outline: 'none' }}
                       onFocus={e => e.target.style.borderColor = 'var(--accent)'}
                       onBlur={e => e.target.style.borderColor = 'var(--border)'} />
-                    <Button variant="secondary" size="sm" icon="key">Rotate</Button>
+                    <Button variant="secondary" size="sm" icon="key">{t('pages.rotate')}</Button>
                   </div>
                 </div>
               </div>
             </div>
             {/* Model settings */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>Model Settings</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>{t('pages.modelSettings')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div>
-                  <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Default Model</label>
+                  <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('pages.defaultModel')}</label>
                   <input defaultValue={connector.model} style={{ width: '100%', background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--text-primary)', fontFamily: 'JetBrains Mono, monospace', outline: 'none', boxSizing: 'border-box' }}
                     onFocus={e => e.target.style.borderColor = 'var(--accent)'}
                     onBlur={e => e.target.style.borderColor = 'var(--border)'} />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  {[['Temperature', '0.7'], ['Max Tokens', '8192']].map(([l, v]) => (
+                  {[[t('pages.temperature'), '0.7'], [t('pages.maxTokens'), '8192']].map(([l, v]) => (
                     <div key={l}>
                       <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{l}</label>
                       <input defaultValue={v} style={{ width: '100%', background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--text-primary)', fontFamily: 'JetBrains Mono, monospace', outline: 'none', boxSizing: 'border-box' }}
@@ -120,8 +122,8 @@ const ConnectorCard = ({ connector }) => {
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
-            <Button variant="secondary" size="sm" onClick={() => setExpanded(false)}>Cancel</Button>
-            <Button variant="primary" size="sm">Save</Button>
+            <Button variant="secondary" size="sm" onClick={() => setExpanded(false)}>{t('button.cancel')}</Button>
+            <Button variant="primary" size="sm">{t('button.save')}</Button>
           </div>
         </div>
       )}
@@ -129,26 +131,30 @@ const ConnectorCard = ({ connector }) => {
   );
 };
 
-export const ConnectorsPage = () => (
-  <PageWrap>
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-      <div>
-        <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>Agent Connectors</h2>
-        <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Manage external AI service connections used by Creative Mode flows</p>
+export const ConnectorsPage = () => {
+  const { t } = useI18n();
+  return (
+    <PageWrap>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <div>
+          <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>{t('pages.connectorsTitle')}</h2>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{t('pages.connectorsDesc')}</p>
+        </div>
+        <Button variant="primary" size="md" icon="plus">{t('pages.addConnector')}</Button>
       </div>
-      <Button variant="primary" size="md" icon="plus">Add Connector</Button>
-    </div>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {CONNECTORS.map(c => <ConnectorCard key={c.id} connector={c} />)}
-    </div>
-  </PageWrap>
-);
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {CONNECTORS.map(c => <ConnectorCard key={c.id} connector={c} />)}
+      </div>
+    </PageWrap>
+  );
+};
 
 // ══════════════════════════════════════════════════════════════════════════════
 // ROLES & PROMPTS PAGE
 // ══════════════════════════════════════════════════════════════════════════════
 
 const PromptLayerEditor = ({ role }) => {
+  const { t } = useI18n();
   const [activeLayer, setActiveLayer] = useState('global');
   const [prompts, setPrompts] = useState({ global: role.promptLayers.global, project: role.promptLayers.project, task: role.promptLayers.task });
   const [dirty, setDirty] = useState(false);
@@ -189,9 +195,9 @@ const PromptLayerEditor = ({ role }) => {
           </button>
         ))}
         <div style={{ flex: 1 }} />
-        <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', alignSelf: 'center' }}>Total: ~{totalTokens} tok</span>
-        {dirty && <Button variant="secondary" size="sm" onClick={() => { setPrompts({ global: role.promptLayers.global, project: role.promptLayers.project, task: role.promptLayers.task }); setDirty(false); }}>Discard</Button>}
-        <Button variant={dirty ? 'primary' : 'secondary'} size="sm" disabled={!dirty} onClick={handleSave}>{saved ? '✓ Saved' : 'Save'}</Button>
+        <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', alignSelf: 'center' }}>{t('pages.totalTokens', { tokens: totalTokens })}</span>
+        {dirty && <Button variant="secondary" size="sm" onClick={() => { setPrompts({ global: role.promptLayers.global, project: role.promptLayers.project, task: role.promptLayers.task }); setDirty(false); }}>{t('button.discard')}</Button>}
+        <Button variant={dirty ? 'primary' : 'secondary'} size="sm" disabled={!dirty} onClick={handleSave}>{saved ? `✓ ${t('button.saved')}` : t('button.save')}</Button>
       </div>
 
       {/* Editor area with highlight overlay */}
@@ -199,8 +205,8 @@ const PromptLayerEditor = ({ role }) => {
         <div style={{ padding: '10px 14px', background: 'var(--bg-panel)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{activeLayer} prompt</span>
           <div style={{ display: 'flex', gap: 12, fontSize: 11, color: 'var(--text-muted)' }}>
-            <span><span style={{ color: 'var(--syntax-variable)' }}>{'{var}'}</span> variables</span>
-            <span><span style={{ color: 'var(--syntax-keyword)' }}>Keywords:</span> highlighted</span>
+            <span><span style={{ color: 'var(--syntax-variable)' }}>{'{var}'}</span> {t('pages.variables', { var: '' }).trim()}</span>
+            <span><span style={{ color: 'var(--syntax-keyword)' }}>{t('pages.keywords')}</span></span>
           </div>
         </div>
         <textarea
@@ -218,7 +224,7 @@ const PromptLayerEditor = ({ role }) => {
 
       {/* Stack preview */}
       <div style={{ marginTop: 10 }}>
-        <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Stack Preview</div>
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>{t('pages.stackPreview')}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {layers.map(l => (
             <div key={l.id} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -235,6 +241,7 @@ const PromptLayerEditor = ({ role }) => {
 };
 
 export const RolesPage = () => {
+  const { t } = useI18n();
   const [selectedRole, setSelectedRole] = useState(null);
   const role = ROLES.find(r => r.id === selectedRole);
 
@@ -243,7 +250,7 @@ export const RolesPage = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 20 }}>
         {/* Role list */}
         <div>
-          <SectionTitle>Roles</SectionTitle>
+          <SectionTitle>{t('pages.roles')}</SectionTitle>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {ROLES.map(r => (
               <div key={r.id} onClick={() => setSelectedRole(r.id)}
@@ -272,7 +279,7 @@ export const RolesPage = () => {
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300, color: 'var(--text-muted)', fontSize: 13, background: 'var(--bg-panel)', borderRadius: 8, border: '1px solid var(--border)' }}>
-              Select a role to edit its prompts
+              {t('pages.selectRole')}
             </div>
           )}
         </div>
@@ -300,6 +307,7 @@ const SKILLS = [
 ];
 
 export const SkillsPage = () => {
+  const { t } = useI18n();
   const [skills, setSkills] = useState(SKILLS);
   const [modeFilter, setModeFilter] = useState('all');
 
@@ -309,7 +317,7 @@ export const SkillsPage = () => {
   return (
     <PageWrap>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-primary)' }}>Skills</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-primary)' }}>{t('pages.skillsTitle')}</h2>
         <div style={{ display: 'flex', gap: 6 }}>
           {['all', 'code', 'creative'].map(m => (
             <button key={m} onClick={() => setModeFilter(m)} style={{
@@ -317,7 +325,7 @@ export const SkillsPage = () => {
               background: modeFilter === m ? 'var(--bg-active)' : 'transparent',
               border: '1px solid var(--border)',
               color: modeFilter === m ? 'var(--text-primary)' : 'var(--text-secondary)',
-            }}>{m === 'all' ? 'All' : m.charAt(0).toUpperCase() + m.slice(1)}</button>
+            }}>{m === 'all' ? t('button.all') : t(`mode.${m}`)}</button>
           ))}
         </div>
       </div>
@@ -326,8 +334,8 @@ export const SkillsPage = () => {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              {['Skill', 'Mode', 'Roles', 'Description', 'Enabled'].map(h => (
-                <th key={h} style={{ padding: '9px 16px', textAlign: h === 'Enabled' ? 'center' : 'left', fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+              {[t('pages.skillsTitle'), t('table.mode'), t('pages.rolesColumn'), t('pages.description'), t('pages.enabled')].map((h, index) => (
+                <th key={h} style={{ padding: '9px 16px', textAlign: index === 4 ? 'center' : 'left', fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -378,6 +386,7 @@ export const SkillsPage = () => {
 // ══════════════════════════════════════════════════════════════════════════════
 
 export const ProjectsPage = () => {
+  const { t } = useI18n();
   const [selected, setSelected] = useState(null);
   const [showNew, setShowNew] = useState(false);
   const [newMode, setNewMode] = useState('code');
@@ -388,7 +397,7 @@ export const ProjectsPage = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 20 }}>
         {/* Project list */}
         <div>
-          <SectionTitle action={<Button variant="primary" size="sm" icon="plus" onClick={() => setShowNew(true)}>New</Button>}>Projects</SectionTitle>
+          <SectionTitle action={<Button variant="primary" size="sm" icon="plus" onClick={() => setShowNew(true)}>{t('button.new')}</Button>}>{t('pages.projectsTitle')}</SectionTitle>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {PROJECTS.map(p => (
               <div key={p.id} onClick={() => { setSelected(p.id); setShowNew(false); }}
@@ -409,14 +418,14 @@ export const ProjectsPage = () => {
         <div>
           {showNew ? (
             <div style={{ }}>
-              <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16 }}>New Project</h2>
+              <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16 }}>{t('pages.newProject')}</h2>
               {/* Mode selector */}
               <div style={{ marginBottom: 20 }}>
-                <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 8 }}>Mode</label>
+                <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 8 }}>{t('table.mode')}</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   {[
-                    { mode: 'code', title: 'Code Mode', desc: 'Automated code generation with test-driven feedback loop', icon: 'code' },
-                    { mode: 'creative', title: 'Creative Mode', desc: 'AI-generated media with human review gates', icon: 'film' },
+                    { mode: 'code', title: t('pages.codeMode'), desc: t('pages.codeModeDesc'), icon: 'code' },
+                    { mode: 'creative', title: t('pages.creativeMode'), desc: t('pages.creativeModeDesc'), icon: 'film' },
                   ].map(opt => (
                     <div key={opt.mode} onClick={() => setNewMode(opt.mode)}
                       style={{
@@ -435,7 +444,7 @@ export const ProjectsPage = () => {
               </div>
               {/* Basic fields */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {[['Name', 'my-project'], ['Stack', newMode === 'code' ? 'Node.js, PostgreSQL' : 'Gemini, Runway']].map(([l, ph]) => (
+                {[[t('pages.name'), 'my-project'], [t('pages.stack'), newMode === 'code' ? 'Node.js, PostgreSQL' : 'Gemini, Runway']].map(([l, ph]) => (
                   <div key={l}>
                     <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{l}</label>
                     <input placeholder={ph} style={{ width: '100%', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 6, padding: '7px 12px', fontSize: 13, color: 'var(--text-primary)', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
@@ -445,15 +454,15 @@ export const ProjectsPage = () => {
                 ))}
                 {newMode === 'code' && (
                   <div>
-                    <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Test Command</label>
+                    <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('pages.testCommand')}</label>
                     <input placeholder="npm test" style={{ width: '100%', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 6, padding: '7px 12px', fontSize: 13, color: 'var(--text-primary)', fontFamily: 'JetBrains Mono, monospace', outline: 'none', boxSizing: 'border-box' }}
                       onFocus={e => e.target.style.borderColor = 'var(--accent)'}
                       onBlur={e => e.target.style.borderColor = 'var(--border)'} />
                   </div>
                 )}
                 <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-                  <Button variant="primary" size="md">Create Project</Button>
-                  <Button variant="secondary" size="md" onClick={() => setShowNew(false)}>Cancel</Button>
+                  <Button variant="primary" size="md">{t('pages.createProject')}</Button>
+                  <Button variant="secondary" size="md" onClick={() => setShowNew(false)}>{t('button.cancel')}</Button>
                 </div>
               </div>
             </div>
@@ -465,9 +474,9 @@ export const ProjectsPage = () => {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {[
-                  { label: 'Stack', value: proj.stack.join(', ') },
-                  { label: 'Active Role', value: proj.activeRole },
-                  ...(proj.testCmd ? [{ label: 'Test Command', value: proj.testCmd, mono: true }] : []),
+                  { label: t('pages.stack'), value: proj.stack.join(', ') },
+                  { label: t('pages.activeRole'), value: proj.activeRole },
+                  ...(proj.testCmd ? [{ label: t('pages.testCommand'), value: proj.testCmd, mono: true }] : []),
                 ].map(({ label, value, mono }) => (
                   <div key={label}>
                     <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{label}</label>
@@ -477,14 +486,14 @@ export const ProjectsPage = () => {
                   </div>
                 ))}
                 <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-                  <Button variant="primary" size="md">Save Changes</Button>
-                  <Button variant="danger" size="md">Delete Project</Button>
+                  <Button variant="primary" size="md">{t('pages.saveChanges')}</Button>
+                  <Button variant="danger" size="md">{t('button.deleteProject')}</Button>
                 </div>
               </div>
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300, color: 'var(--text-muted)', fontSize: 13, background: 'var(--bg-panel)', borderRadius: 8, border: '1px solid var(--border)' }}>
-              Select a project or create a new one
+              {t('pages.selectProject')}
             </div>
           )}
         </div>
@@ -517,27 +526,28 @@ const MiniChart = ({ data, color, height = 48 }) => {
 };
 
 export const InsightsPage = () => {
+  const { t } = useI18n();
   const d = INSIGHTS;
   const s = d.todaySummary;
   const dates = d.firstPassRate.map(r => r.date);
 
   return (
     <PageWrap>
-      <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 20 }}>Insights</h2>
+      <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 20 }}>{t('pages.insightsTitle')}</h2>
 
       {/* Today summary */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 28 }}>
-        <StatCard label="Code Success Rate" value={`${Math.round(s.codeSuccess / s.codeRuns * 100)}%`} sub={`${s.codeSuccess}/${s.codeRuns} runs`} color="var(--mode-code)" />
-        <StatCard label="Creative Approval Rate" value={`${Math.round(s.creativeApproved / s.creativeRuns * 100)}%`} sub={`${s.creativeApproved}/${s.creativeRuns} runs`} color="var(--mode-creative)" />
-        <StatCard label="Total Tokens" value={`${(s.tokensTotal / 1000).toFixed(0)}k`} sub="across all connectors today" />
-        <StatCard label="Est. Cost" value={`$${s.estimatedCost.toFixed(2)}`} sub="all API usage today" />
+        <StatCard label={t('pages.codeSuccessRate')} value={`${Math.round(s.codeSuccess / s.codeRuns * 100)}%`} sub={`${s.codeSuccess}/${s.codeRuns} runs`} color="var(--mode-code)" />
+        <StatCard label={t('pages.creativeApprovalRate')} value={`${Math.round(s.creativeApproved / s.creativeRuns * 100)}%`} sub={`${s.creativeApproved}/${s.creativeRuns} runs`} color="var(--mode-creative)" />
+        <StatCard label={t('pages.totalTokensMetric')} value={`${(s.tokensTotal / 1000).toFixed(0)}k`} sub={t('dashboard.tokensSub')} />
+        <StatCard label={t('pages.estimatedCostMetric')} value={`$${s.estimatedCost.toFixed(2)}`} sub={t('dashboard.costSub')} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
         {/* First pass rate */}
         <div style={{ background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 8, padding: '16px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }}>First-Pass Rate (8d)</span>
+            <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }}>{t('pages.firstPassRate')}</span>
             <div style={{ display: 'flex', gap: 12, fontSize: 11 }}>
               <span style={{ color: 'var(--mode-code)', display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 2, background: 'var(--mode-code)', display: 'inline-block', borderRadius: 1 }} />Code</span>
               <span style={{ color: 'var(--mode-creative)', display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 2, background: 'var(--mode-creative)', display: 'inline-block', borderRadius: 1 }} />Creative</span>
@@ -556,7 +566,7 @@ export const InsightsPage = () => {
 
         {/* Avg fix attempts (code) */}
         <div style={{ background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 8, padding: '16px 20px' }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 14 }}>Avg Fix Attempts — Code Mode</div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 14 }}>{t('pages.avgFixAttempts')}</div>
           <div style={{ height: 70 }}>
             <MiniChart data={d.avgFixAttempts} color="var(--status-warning)" height={60} />
           </div>
@@ -569,12 +579,12 @@ export const InsightsPage = () => {
       {/* Per-project breakdown */}
       <div style={{ background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
         <div style={{ padding: '12px 18px', borderBottom: '1px solid var(--border)' }}>
-          <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }}>Usage by Project</span>
+          <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }}>{t('pages.usageByProject')}</span>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              {['Project', 'Mode', 'Tokens', 'Est. Cost', ''].map(h => (
+              {[t('table.project'), t('table.mode'), t('dashboard.tokens'), t('pages.estCost'), ''].map(h => (
                 <th key={h} style={{ padding: '8px 18px', textAlign: 'left', fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
               ))}
             </tr>

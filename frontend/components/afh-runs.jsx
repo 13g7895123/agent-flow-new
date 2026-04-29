@@ -4,12 +4,14 @@ import React, { useState } from 'react';
 import { CODE_RUN_STEPS, PROJECTS, RUNS } from '@/lib/afh-data';
 import { Button, Icon, ModeBadge, PageWrap, StatusBadge, Tabs, statusConfig } from '@/components/afh-ui';
 import { CreativeRunDetail } from '@/components/afh-creative';
+import { useI18n } from '@/components/i18n';
 import { StepTimeline } from '@/components/step-timeline';
 
 // afh-runs.jsx — Run list + Code Mode run detail
 
 // ── Code Diff Viewer ──────────────────────────────────────────────────────────
 const DiffViewer = ({ before, after }) => {
+  const { t } = useI18n();
   const [mode, setMode] = useState('split');
   const bLines = before.split('\n');
   const aLines = after.split('\n');
@@ -22,7 +24,7 @@ const DiffViewer = ({ before, after }) => {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-        <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>Code Diff</span>
+        <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>{t('runs.codeDiff')}</span>
         <div style={{ display: 'flex', gap: 4 }}>
           {['split','unified'].map(m => (
             <button key={m} onClick={() => setMode(m)} style={{
@@ -88,6 +90,7 @@ const DiffViewer = ({ before, after }) => {
 
 // ── Test Results ──────────────────────────────────────────────────────────────
 const TestPanel = ({ results }) => {
+  const { t: translate } = useI18n();
   const [expanded, setExpanded] = useState(null);
   const pass = results.filter(r => r.status === 'pass').length;
   const fail = results.length - pass;
@@ -129,6 +132,7 @@ const TestPanel = ({ results }) => {
 
 // ── Context Viewer ────────────────────────────────────────────────────────────
 const ContextViewer = ({ breakdown }) => {
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState(null);
   const total = breakdown.reduce((s, b) => s + b.tokens, 0);
   const colors = ['var(--accent)', 'var(--status-success)', 'var(--syntax-variable)', 'var(--status-warning)', 'var(--syntax-keyword)', 'var(--text-secondary)'];
@@ -153,14 +157,14 @@ const ContextViewer = ({ breakdown }) => {
             </div>
             {expanded === i && (
               <div style={{ padding: '8px 12px', background: 'var(--bg-surface)', borderRadius: '0 0 6px 6px', border: '1px solid var(--border)', borderTop: 'none', fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)' }}>
-                — content preview not available in this view —
+                content preview not available in this view
               </div>
             )}
           </div>
         ))}
       </div>
       <div style={{ marginTop: 10, padding: '8px 10px', background: 'var(--bg-surface)', borderRadius: 6, display: 'flex', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Total context</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('runs.totalContext')}</span>
         <span style={{ fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-primary)' }}>{total.toLocaleString()} tok · {(total / 130000 * 100).toFixed(0)}% of window</span>
       </div>
     </div>
@@ -169,6 +173,7 @@ const ContextViewer = ({ breakdown }) => {
 
 // ── Escalation Banner ─────────────────────────────────────────────────────────
 const EscalationBanner = ({ run }) => {
+  const { t } = useI18n();
   const [hint, setHint] = useState('');
   const [submitted, setSubmitted] = useState(false);
   return (
@@ -176,12 +181,12 @@ const EscalationBanner = ({ run }) => {
       <div style={{ display: 'flex', gap: 12 }}>
         <Icon name="warning" size={18} style={{ color: 'var(--status-escalate)', flexShrink: 0, marginTop: 1 }} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--status-escalate)', marginBottom: 4 }}>Human Intervention Required</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--status-escalate)', marginBottom: 4 }}>{t('runs.humanIntervention')}</div>
           <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
-            Run exhausted {run.maxFix} fix attempts. {run.testFail} test{run.testFail !== 1 ? 's' : ''} still failing.
+            {t('runs.humanInterventionDesc', { max: run.maxFix, fail: run.testFail })}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
-            {[['Attempts used', `${run.fixAttempts}/${run.maxFix}`], ['Tests failing', `${run.testFail}`], ['Duration', run.duration]].map(([l, v]) => (
+            {[[t('runs.attemptsUsed'), `${run.fixAttempts}/${run.maxFix}`], [t('runs.testsFailing'), `${run.testFail}`], [t('table.duration'), run.duration]].map(([l, v]) => (
               <div key={l} style={{ padding: '8px 10px', background: 'var(--bg-surface)', borderRadius: 6, border: '1px solid var(--border)' }}>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 2 }}>{l}</div>
                 <div style={{ fontSize: 16, fontWeight: 600, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-primary)' }}>{v}</div>
@@ -191,16 +196,16 @@ const EscalationBanner = ({ run }) => {
           {!submitted ? (
             <div style={{ display: 'flex', gap: 8 }}>
               <input value={hint} onChange={e => setHint(e.target.value)}
-                placeholder="Hint for next attempt… (e.g. 'upsert needs ON CONFLICT (cart_id)')"
+                placeholder={t('runs.hintPlaceholder')}
                 style={{ flex: 1, background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 6, padding: '7px 12px', fontSize: 13, color: 'var(--text-primary)', fontFamily: 'inherit', outline: 'none' }}
                 onFocus={e => e.target.style.borderColor = 'var(--accent)'}
                 onBlur={e => e.target.style.borderColor = 'var(--border)'} />
-              <Button variant="primary" size="md" icon="send" onClick={() => hint.trim() && setSubmitted(true)}>Resume</Button>
-              <Button variant="danger" size="md">Abort</Button>
+              <Button variant="primary" size="md" icon="send" onClick={() => hint.trim() && setSubmitted(true)}>{t('runs.resume')}</Button>
+              <Button variant="danger" size="md">{t('runs.abort')}</Button>
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--status-success)', fontSize: 13 }}>
-              <Icon name="check" size={14} />Hint submitted — run will resume shortly
+              <Icon name="check" size={14} />{t('runs.hintSubmitted')}
             </div>
           )}
         </div>
@@ -211,16 +216,17 @@ const EscalationBanner = ({ run }) => {
 
 // ── Code Mode Run Detail ──────────────────────────────────────────────────────
 const CodeRunDetail = ({ run, onBack }) => {
+  const { t } = useI18n();
   const steps = CODE_RUN_STEPS;
   const [sel, setSel] = useState('s4');
   const [tab, setTab] = useState('output');
   const step = steps.find(s => s.id === sel);
 
   const tabs = [
-    { id: 'output', label: 'Output' },
-    ...(step?.diff ? [{ id: 'diff', label: 'Code Diff' }] : []),
-    ...(step?.testResults ? [{ id: 'tests', label: 'Tests', count: step.testResults.filter(t => t.status === 'fail').length }] : []),
-    ...(step?.collectorBreakdown ? [{ id: 'context', label: 'Context' }] : []),
+    { id: 'output', label: t('runs.output') },
+    ...(step?.diff ? [{ id: 'diff', label: t('runs.codeDiff') }] : []),
+    ...(step?.testResults ? [{ id: 'tests', label: t('runs.tests'), count: step.testResults.filter(t => t.status === 'fail').length }] : []),
+    ...(step?.collectorBreakdown ? [{ id: 'context', label: t('runs.context') }] : []),
   ];
   const activeTab = tabs.find(t => t.id === tab) ? tab : tabs[0]?.id || 'output';
 
@@ -229,7 +235,7 @@ const CodeRunDetail = ({ run, onBack }) => {
       {/* Sub-header */}
       <div style={{ padding: '10px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12, background: 'var(--bg-panel)', flexShrink: 0 }}>
         <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 13, padding: 0 }}>
-          <Icon name="chevronLeft" size={14} />Runs
+          <Icon name="chevronLeft" size={14} />{t('nav.runs')}
         </button>
         <span style={{ color: 'var(--border)' }}>/</span>
         <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: 'var(--text-primary)' }}>{run.id}</span>
@@ -245,7 +251,7 @@ const CodeRunDetail = ({ run, onBack }) => {
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* Timeline */}
         <div style={{ width: 300, flexShrink: 0, borderRight: '1px solid var(--border)', padding: '16px 12px', overflowY: 'auto', background: 'var(--bg-panel)' }}>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, padding: '0 4px' }}>Step Timeline</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, padding: '0 4px' }}>{t('runs.timeline')}</div>
           <StepTimeline steps={steps} selected={sel} onSelect={id => { setSel(id); }} mode="code" />
         </div>
 
@@ -265,20 +271,20 @@ const CodeRunDetail = ({ run, onBack }) => {
                   <div>
                     {step.input && (
                       <div style={{ marginBottom: 14 }}>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Input</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{t('runs.input')}</div>
                         <pre style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 6, padding: '10px 12px', fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.6, margin: 0 }}>{step.input}</pre>
                       </div>
                     )}
                     {step.output && (
                       <div>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Output</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{t('runs.output')}</div>
                         <pre style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 6, padding: '10px 12px', fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-primary)', whiteSpace: 'pre-wrap', lineHeight: 1.6, margin: 0 }}>{step.output}</pre>
                       </div>
                     )}
                     {step.status === 'running' && !step.output && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--status-running)', fontSize: 13 }}>
                         <div style={{ width: 14, height: 14, border: '2px solid var(--status-running)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                        Analyzing failures and generating fix…
+                        {t('runs.waitingFix')}
                       </div>
                     )}
                   </div>
@@ -324,6 +330,7 @@ const RunRow = ({ run, onClick }) => {
 
 // ── Run List Page ─────────────────────────────────────────────────────────────
 export const RunsListPage = ({ selectedRun, setSelectedRun }) => {
+  const { t } = useI18n();
   const [statusFilter, setStatusFilter] = useState('all');
   const [modeFilter, setModeFilter] = useState('all');
   const [projFilter, setProjFilter] = useState('all');
@@ -359,7 +366,7 @@ export const RunsListPage = ({ selectedRun, setSelectedRun }) => {
               fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4,
             }}>
               {s !== 'all' && counts[s] > 0 && <span style={{ color: statusConfig[s]?.color }}>{counts[s]}</span>}
-              {s === 'all' ? `All (${counts.all})` : s.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}
+              {s === 'all' ? t('runs.all', { count: counts.all }) : t(`status.${s}`)}
             </button>
           ))}
         </div>
@@ -371,11 +378,11 @@ export const RunsListPage = ({ selectedRun, setSelectedRun }) => {
             color: modeFilter === m ? 'var(--text-primary)' : 'var(--text-secondary)',
             fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
           }}>
-            {m === 'all' ? 'All modes' : m.charAt(0).toUpperCase() + m.slice(1)}
+            {m === 'all' ? t('runs.allModes') : t(`mode.${m}`)}
           </button>
         ))}
         <select value={projFilter} onChange={e => setProjFilter(e.target.value)} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontSize: 12, padding: '5px 10px', borderRadius: 6, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}>
-          {projects.map(p => <option key={p} value={p}>{p === 'all' ? 'All projects' : p}</option>)}
+          {projects.map(p => <option key={p} value={p}>{p === 'all' ? t('runs.allProjects') : p}</option>)}
         </select>
       </div>
 
@@ -384,7 +391,7 @@ export const RunsListPage = ({ selectedRun, setSelectedRun }) => {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              {['Run', 'Mode', 'Task', 'Project', 'Status', 'Duration', 'Usage', 'Fix / Assets'].map(h => (
+              {[t('table.run'), t('table.mode'), t('table.task'), t('table.project'), t('table.status'), t('table.duration'), t('table.usage'), t('table.fixAssets')].map(h => (
                 <th key={h} style={{ padding: '9px 14px', textAlign: 'left', fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{h}</th>
               ))}
             </tr>
@@ -398,7 +405,7 @@ export const RunsListPage = ({ selectedRun, setSelectedRun }) => {
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No runs match current filters</div>}
+        {filtered.length === 0 && <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>{t('runs.noMatches')}</div>}
       </div>
     </PageWrap>
   );

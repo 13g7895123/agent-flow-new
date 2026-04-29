@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import { CONNECTORS, CREATIVE_RUN_STEPS } from '@/lib/afh-data';
 import { AssetPlaceholder, Button, ConnectorBadge, Icon, ModeBadge, StatusBadge, Tabs } from '@/components/afh-ui';
+import { useI18n } from '@/components/i18n';
 import { StepTimeline } from '@/components/step-timeline';
 
 // afh-creative.jsx — Creative Mode run detail: Asset Gallery + Review Panel
 
 // ── Asset Gallery ─────────────────────────────────────────────────────────────
 const AssetGallery = ({ assets, onReview }) => {
+  const { t } = useI18n();
   const [lightbox, setLightbox] = useState(null); // { sceneIdx, versionIdx }
 
   return (
@@ -20,12 +22,12 @@ const AssetGallery = ({ assets, onReview }) => {
             <span style={{ fontSize: 11, color: 'var(--text-muted)', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 3, padding: '1px 6px', fontFamily: 'JetBrains Mono, monospace' }}>{scene.aspectRatio}</span>
             {scene.versions.some(v => v.status === 'approved') && (
               <span style={{ fontSize: 11, color: 'var(--status-success)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Icon name="check" size={11} /> Approved
+                <Icon name="check" size={11} /> {t('creative.approved')}
               </span>
             )}
             {scene.versions.every(v => v.status === 'pending') && (
               <span style={{ fontSize: 11, color: 'var(--status-review)', display: 'flex', alignItems: 'center', gap: 4, animation: 'review-pulse 3s infinite' }}>
-                <Icon name="pause" size={11} /> Awaiting review
+                <Icon name="pause" size={11} /> {t('creative.awaitingReview')}
               </span>
             )}
           </div>
@@ -97,13 +99,13 @@ const AssetGallery = ({ assets, onReview }) => {
               {/* Review actions */}
               {ver.status === 'pending' && (
                 <div style={{ display: 'flex', gap: 8, marginTop: 12, justifyContent: 'center' }}>
-                  <Button variant="approve" size="md" icon="thumbsUp" onClick={() => { onReview(scene.sceneId, ver.v, 'approve', ''); setLightbox(null); }}>Approve</Button>
-                  <Button variant="reject" size="md" icon="thumbsDown" onClick={() => setLightbox(null)}>Reject with Feedback</Button>
+                  <Button variant="approve" size="md" icon="thumbsUp" onClick={() => { onReview(scene.sceneId, ver.v, 'approve', ''); setLightbox(null); }}>{t('creative.approve')}</Button>
+                  <Button variant="reject" size="md" icon="thumbsDown" onClick={() => setLightbox(null)}>{t('creative.reject')}</Button>
                 </div>
               )}
               {ver.feedback && (
                 <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 6, background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)', fontSize: 12, color: 'var(--status-error)', textAlign: 'center' }}>
-                  Rejected: {ver.feedback}
+                  {t('creative.rejected')}: {ver.feedback}
                 </div>
               )}
             </div>
@@ -116,6 +118,7 @@ const AssetGallery = ({ assets, onReview }) => {
 
 // ── Review Panel ──────────────────────────────────────────────────────────────
 const ReviewPanel = ({ assets, onReview }) => {
+  const { t } = useI18n();
   const [selectedScene, setSelectedScene] = useState(null);
   const [feedback, setFeedback] = useState('');
   const [action, setAction] = useState(null);
@@ -139,7 +142,7 @@ const ReviewPanel = ({ assets, onReview }) => {
     return (
       <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>
         <Icon name="check" size={20} style={{ color: 'var(--status-success)', display: 'block', margin: '0 auto 8px' }} />
-        All assets reviewed
+        {t('creative.allAssetsReviewed')}
       </div>
     );
   }
@@ -147,7 +150,7 @@ const ReviewPanel = ({ assets, onReview }) => {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }}>Pending Review</span>
+        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }}>{t('creative.pendingReview')}</span>
         <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 10, background: 'rgba(192,132,252,0.12)', color: 'var(--status-review)', fontWeight: 500 }}>{pendingItems.length}</span>
       </div>
 
@@ -173,7 +176,7 @@ const ReviewPanel = ({ assets, onReview }) => {
                 {done ? (
                   <span style={{ fontSize: 12, color: done === 'approve' ? 'var(--status-success)' : 'var(--status-error)', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Icon name={done === 'approve' ? 'check' : 'x'} size={13} />
-                    {done === 'approve' ? 'Approved' : 'Rejected'}
+                    {done === 'approve' ? t('creative.approved') : t('creative.rejected')}
                   </span>
                 ) : (
                   <Icon name={isOpen ? 'chevronUp' : 'chevronDown'} size={14} style={{ color: 'var(--text-muted)' }} />
@@ -191,7 +194,7 @@ const ReviewPanel = ({ assets, onReview }) => {
                       color: action === 'approve' ? '#fff' : 'var(--text-secondary)',
                       fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                     }}>
-                      <Icon name="thumbsUp" size={14} /> Approve
+                      <Icon name="thumbsUp" size={14} /> {t('creative.approve')}
                     </button>
                     <button onClick={() => setAction('reject')} style={{
                       flex: 1, padding: '8px', borderRadius: 6, cursor: 'pointer', fontFamily: 'inherit',
@@ -200,7 +203,7 @@ const ReviewPanel = ({ assets, onReview }) => {
                       color: action === 'reject' ? 'var(--status-error)' : 'var(--text-secondary)',
                       fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                     }}>
-                      <Icon name="thumbsDown" size={14} /> Reject
+                      <Icon name="thumbsDown" size={14} /> {t('creative.reject')}
                     </button>
                     <button onClick={() => { setAction('regenerate'); }} style={{
                       padding: '8px 12px', borderRadius: 6, cursor: 'pointer', fontFamily: 'inherit',
@@ -208,7 +211,7 @@ const ReviewPanel = ({ assets, onReview }) => {
                       color: 'var(--text-secondary)', fontSize: 13,
                       display: 'flex', alignItems: 'center', gap: 6,
                     }}>
-                      <Icon name="refresh" size={13} /> Retry
+                      <Icon name="refresh" size={13} /> {t('creative.retry')}
                     </button>
                   </div>
 
@@ -235,7 +238,7 @@ const ReviewPanel = ({ assets, onReview }) => {
 
                   <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
                     <Button variant="primary" size="md" disabled={!action || (action === 'reject' && !feedback.trim())} onClick={() => handleSubmit(scene.sceneId, ver.v)}>
-                      Submit Review
+                      {t('creative.submitReview')}
                     </Button>
                   </div>
                 </div>
@@ -248,14 +251,14 @@ const ReviewPanel = ({ assets, onReview }) => {
       {/* Batch approve */}
       {pendingItems.filter(({ scene, ver }) => !submitted[`${scene.sceneId}-${ver.v}`]).length > 1 && (
         <div style={{ marginTop: 12, padding: '10px 14px', background: 'var(--bg-surface)', borderRadius: 8, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Approve all pending at once?</span>
+          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{t('creative.batchApprove')}</span>
           <Button variant="approve" size="sm" onClick={() => {
             pendingItems.forEach(({ scene, ver }) => {
               if (!submitted[`${scene.sceneId}-${ver.v}`]) {
                 setSubmitted(s => ({ ...s, [`${scene.sceneId}-${ver.v}`]: 'approve' }));
               }
             });
-          }}>Approve All</Button>
+          }}>{t('creative.approveAll')}</Button>
         </div>
       )}
     </div>
@@ -297,6 +300,7 @@ const ConnectorStatusMini = ({ steps }) => {
 
 // ── Creative Mode Run Detail ───────────────────────────────────────────────────
 export const CreativeRunDetail = ({ run, onBack }) => {
+  const { t } = useI18n();
   const steps = CREATIVE_RUN_STEPS;
   const [sel, setSel] = useState('c3');
   const [tab, setTab] = useState('gallery');
@@ -319,9 +323,9 @@ export const CreativeRunDetail = ({ run, onBack }) => {
 
   const hasPending = mergedAssets.some(sc => sc.versions.some(v => v.status === 'pending'));
   const galleryTabs = [
-    { id: 'gallery', label: 'Asset Gallery' },
-    ...(step?.assets?.length > 0 ? [{ id: 'review', label: 'Review', count: hasPending ? mergedAssets.flatMap(s => s.versions).filter(v => v.status === 'pending').length : 0 }] : []),
-    { id: 'output', label: 'Output' },
+    { id: 'gallery', label: t('creative.assetGallery') },
+    ...(step?.assets?.length > 0 ? [{ id: 'review', label: t('creative.review'), count: hasPending ? mergedAssets.flatMap(s => s.versions).filter(v => v.status === 'pending').length : 0 }] : []),
+    { id: 'output', label: t('runs.output') },
   ];
 
   return (
@@ -329,7 +333,7 @@ export const CreativeRunDetail = ({ run, onBack }) => {
       {/* Sub-header */}
       <div style={{ padding: '10px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12, background: 'var(--bg-panel)', flexShrink: 0 }}>
         <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 13, padding: 0 }}>
-          <Icon name="chevronLeft" size={14} />Runs
+          <Icon name="chevronLeft" size={14} />{t('nav.runs')}
         </button>
         <span style={{ color: 'var(--border)' }}>/</span>
         <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: 'var(--text-primary)' }}>{run.id}</span>
@@ -347,22 +351,22 @@ export const CreativeRunDetail = ({ run, onBack }) => {
         <div style={{ padding: '10px 24px', background: 'rgba(192,132,252,0.07)', borderBottom: '1px solid rgba(192,132,252,0.2)', display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--status-review)', animation: 'pulse-dot 3s infinite' }} />
           <span style={{ fontSize: 13, color: 'var(--status-review)', fontWeight: 500 }}>
-            Flow paused at Review Gate — {run.assetsPendingReview} asset{run.assetsPendingReview !== 1 ? 's' : ''} waiting for your review
+            {t('creative.reviewGate', { count: run.assetsPendingReview })}
           </span>
           <div style={{ flex: 1 }} />
-          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Step {run.stepsDone}/{run.stepsTotal} · Motion generation will begin once approved</span>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('creative.reviewGateSub', { done: run.stepsDone, total: run.stepsTotal })}</span>
         </div>
       )}
 
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* Timeline */}
         <div style={{ width: 300, flexShrink: 0, borderRight: '1px solid var(--border)', padding: '16px 12px', overflowY: 'auto', background: 'var(--bg-panel)' }}>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, padding: '0 4px' }}>Step Timeline</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, padding: '0 4px' }}>{t('runs.timeline')}</div>
           <StepTimeline steps={steps} selected={sel} onSelect={setSel} mode="creative" />
 
           {/* Connector status */}
           <div style={{ marginTop: 20, padding: '0 4px' }}>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>Connectors</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>{t('creative.connectors')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               {CONNECTORS.slice(0, 3).map(c => {
                 const dotColor = { connected: 'var(--status-success)', rate_limited: 'var(--status-warning)', disconnected: 'var(--text-muted)' }[c.status];
@@ -406,19 +410,19 @@ export const CreativeRunDetail = ({ run, onBack }) => {
                 <div>
                   {step.input && (
                     <div style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Input</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{t('runs.input')}</div>
                       <pre style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 6, padding: '10px 12px', fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.6, margin: 0 }}>{step.input}</pre>
                     </div>
                   )}
                   {step.output && (
                     <div>
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Output</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{t('runs.output')}</div>
                       <pre style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 6, padding: '10px 12px', fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-primary)', whiteSpace: 'pre-wrap', lineHeight: 1.6, margin: 0 }}>{step.output}</pre>
                     </div>
                   )}
                   {step.status === 'pending' && (
                     <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, background: 'var(--bg-surface)', borderRadius: 8, border: '1px solid var(--border)' }}>
-                      Waiting for upstream steps to complete
+                      {t('creative.waitingUpstream')}
                     </div>
                   )}
                 </div>

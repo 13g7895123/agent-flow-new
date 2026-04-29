@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { PROJECTS, RUNS } from '@/lib/afh-data';
+import { SUPPORTED_LANGUAGES, useI18n } from '@/components/i18n';
 
 // afh-ui.jsx — Shared UI components v3
 
@@ -60,15 +61,16 @@ export const Icon = ({ name, size = 16, style: s = {} }) => {
 
 // ── Status config ─────────────────────────────────────────────────────────────
 export const statusConfig = {
-  running:        { label: 'Running',       color: 'var(--status-running)',   bg: 'rgba(96,165,250,0.12)' },
-  success:        { label: 'Success',       color: 'var(--status-success)',   bg: 'rgba(52,211,153,0.12)' },
-  failed:         { label: 'Failed',        color: 'var(--status-error)',     bg: 'rgba(248,113,113,0.12)' },
-  escalated:      { label: 'Escalated',     color: 'var(--status-escalate)', bg: 'rgba(251,146,60,0.12)' },
-  pending:        { label: 'Pending',       color: 'var(--text-muted)',       bg: 'var(--bg-surface)' },
-  waiting_review: { label: 'Needs Review',  color: 'var(--status-review)',    bg: 'rgba(192,132,252,0.12)' },
+  running:        { color: 'var(--status-running)',   bg: 'rgba(96,165,250,0.12)' },
+  success:        { color: 'var(--status-success)',   bg: 'rgba(52,211,153,0.12)' },
+  failed:         { color: 'var(--status-error)',     bg: 'rgba(248,113,113,0.12)' },
+  escalated:      { color: 'var(--status-escalate)', bg: 'rgba(251,146,60,0.12)' },
+  pending:        { color: 'var(--text-muted)',       bg: 'var(--bg-surface)' },
+  waiting_review: { color: 'var(--status-review)',    bg: 'rgba(192,132,252,0.12)' },
 };
 
 export const StatusBadge = ({ status, size = 'sm' }) => {
+  const { t } = useI18n();
   const cfg = statusConfig[status] || statusConfig.pending;
   return (
     <span style={{
@@ -79,35 +81,38 @@ export const StatusBadge = ({ status, size = 'sm' }) => {
     }}>
       {status === 'running' && <span style={{ width: 5, height: 5, borderRadius: '50%', background: cfg.color, animation: 'pulse-dot 1.4s infinite' }} />}
       {status === 'waiting_review' && <Icon name="pause" size={9} />}
-      {cfg.label}
+      {t(`status.${status || 'pending'}`)}
     </span>
   );
 };
 
 // ── Mode badge ────────────────────────────────────────────────────────────────
-export const ModeBadge = ({ mode }) => (
-  <span style={{
-    display: 'inline-flex', alignItems: 'center', gap: 4,
-    padding: '2px 7px', borderRadius: 4, fontSize: 10, fontWeight: 600,
-    letterSpacing: '0.06em', textTransform: 'uppercase',
-    background: mode === 'code'
-      ? 'rgba(96,165,250,0.12)' : 'rgba(244,114,182,0.12)',
-    color: mode === 'code' ? 'var(--mode-code)' : 'var(--mode-creative)',
-  }}>
-    <Icon name={mode === 'code' ? 'code' : 'film'} size={9} />
-    {mode === 'code' ? 'Code' : 'Creative'}
-  </span>
-);
+export const ModeBadge = ({ mode }) => {
+  const { t } = useI18n();
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 4,
+      padding: '2px 7px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+      letterSpacing: '0.06em', textTransform: 'uppercase',
+      background: mode === 'code'
+        ? 'rgba(96,165,250,0.12)' : 'rgba(244,114,182,0.12)',
+      color: mode === 'code' ? 'var(--mode-code)' : 'var(--mode-creative)',
+    }}>
+      <Icon name={mode === 'code' ? 'code' : 'film'} size={9} />
+      {t(`mode.${mode}`)}
+    </span>
+  );
+};
 
 // ── Connector type badge ──────────────────────────────────────────────────────
 export const ConnectorBadge = ({ type }) => {
-  const labels = { llm: 'LLM', image_gen: 'Image Gen', video_gen: 'Video Gen', processor: 'Processor' };
+  const { t } = useI18n();
   return (
     <span style={{
       fontSize: 10, padding: '2px 6px', borderRadius: 3,
       background: 'var(--bg-surface)', border: '1px solid var(--border)',
       color: 'var(--text-muted)', fontWeight: 500,
-    }}>{labels[type] || type}</span>
+    }}>{t(`connector.${type}`)}</span>
   );
 };
 
@@ -138,21 +143,23 @@ export const Button = ({ children, variant = 'secondary', size = 'sm', onClick, 
 
 // ── Sidebar ───────────────────────────────────────────────────────────────────
 export const NAV_ITEMS = [
-  { id: 'dashboard',  label: 'Dashboard',       icon: 'dashboard' },
-  { id: 'runs',       label: 'Runs',             icon: 'runs' },
-  { id: 'roles',      label: 'Roles & Prompts',  icon: 'roles' },
-  { id: 'skills',     label: 'Skills',           icon: 'skills' },
-  { id: 'connectors', label: 'Agent Connectors', icon: 'connectors' },
-  { id: 'projects',   label: 'Projects',         icon: 'projects' },
-  { id: 'insights',   label: 'Insights',         icon: 'insights' },
+  { id: 'dashboard',  labelKey: 'nav.dashboard',  icon: 'dashboard' },
+  { id: 'runs',       labelKey: 'nav.runs',       icon: 'runs' },
+  { id: 'roles',      labelKey: 'nav.roles',      icon: 'roles' },
+  { id: 'skills',     labelKey: 'nav.skills',     icon: 'skills' },
+  { id: 'connectors', labelKey: 'nav.connectors', icon: 'connectors' },
+  { id: 'projects',   labelKey: 'nav.projects',   icon: 'projects' },
+  { id: 'insights',   labelKey: 'nav.insights',   icon: 'insights' },
 ];
 
 const SidebarNavItem = ({ item, page, setPage, collapsed }) => {
+  const { t } = useI18n();
   const [hovered, setHovered] = useState(false);
   const active = page === item.id;
+  const label = t(item.labelKey);
 
   return (
-    <button key={item.id} onClick={() => setPage(item.id)} title={collapsed ? item.label : undefined}
+    <button key={item.id} onClick={() => setPage(item.id)} title={collapsed ? label : undefined}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
       style={{
         width: '100%', display: 'flex', alignItems: 'center', gap: 10,
@@ -164,83 +171,96 @@ const SidebarNavItem = ({ item, page, setPage, collapsed }) => {
       <span style={{ color: active ? 'var(--accent)' : hovered ? 'var(--text-primary)' : 'var(--text-secondary)', flexShrink: 0 }}>
         <Icon name={item.icon} size={16} />
       </span>
-      {!collapsed && <span style={{ fontSize: 13, fontWeight: active ? 500 : 400, color: active ? 'var(--text-primary)' : 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{item.label}</span>}
+      {!collapsed && <span style={{ fontSize: 13, fontWeight: active ? 500 : 400, color: active ? 'var(--text-primary)' : 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{label}</span>}
     </button>
   );
 };
 
-export const Sidebar = ({ page, setPage, collapsed, setCollapsed }) => (
-  <aside style={{
-    width: collapsed ? 64 : 240, flexShrink: 0, height: '100vh', position: 'sticky', top: 0,
-    background: 'var(--bg-panel)', borderRight: '1px solid var(--border)',
-    display: 'flex', flexDirection: 'column', transition: 'width 200ms ease', zIndex: 20,
-  }}>
-    <div style={{ height: 52, display: 'flex', alignItems: 'center', padding: collapsed ? '0 20px' : '0 16px', borderBottom: '1px solid var(--border)', gap: 10, overflow: 'hidden' }}>
-      <div style={{ width: 24, height: 24, borderRadius: 6, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <Icon name="zap" size={13} style={{ color: '#fff' }} />
+export const Sidebar = ({ page, setPage, collapsed, setCollapsed }) => {
+  const { t } = useI18n();
+  return (
+    <aside style={{
+      width: collapsed ? 64 : 240, flexShrink: 0, height: '100vh', position: 'sticky', top: 0,
+      background: 'var(--bg-panel)', borderRight: '1px solid var(--border)',
+      display: 'flex', flexDirection: 'column', transition: 'width 200ms ease', zIndex: 20,
+    }}>
+      <div style={{ height: 52, display: 'flex', alignItems: 'center', padding: collapsed ? '0 20px' : '0 16px', borderBottom: '1px solid var(--border)', gap: 10, overflow: 'hidden' }}>
+        <div style={{ width: 24, height: 24, borderRadius: 6, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Icon name="zap" size={13} style={{ color: '#fff' }} />
+        </div>
+        {!collapsed && <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', letterSpacing: 0 }}>{t('app.brand')}</span>}
       </div>
-      {!collapsed && <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>Agent Flow</span>}
-    </div>
-    <nav style={{ flex: 1, padding: '8px 0', overflowY: 'auto' }}>
-      {NAV_ITEMS.map(item => <SidebarNavItem key={item.id} item={item} page={page} setPage={setPage} collapsed={collapsed} />)}
-    </nav>
-    <div style={{ padding: 8, borderTop: '1px solid var(--border)' }}>
-      <button onClick={() => setCollapsed(c => !c)} style={{
-        width: '100%', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start',
-        gap: 8, padding: '7px 8px', borderRadius: 6, background: 'transparent', border: 'none',
-        cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12,
+      <nav style={{ flex: 1, padding: '8px 0', overflowY: 'auto' }}>
+        {NAV_ITEMS.map(item => <SidebarNavItem key={item.id} item={item} page={page} setPage={setPage} collapsed={collapsed} />)}
+      </nav>
+      <div style={{ padding: 8, borderTop: '1px solid var(--border)' }}>
+        <button onClick={() => setCollapsed(c => !c)} style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start',
+          gap: 8, padding: '7px 8px', borderRadius: 6, background: 'transparent', border: 'none',
+          cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12,
+        }}
+          onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+          <Icon name={collapsed ? 'chevronRight' : 'chevronLeft'} size={14} />
+          {!collapsed && t('button.collapse')}
+        </button>
+      </div>
+    </aside>
+  );
+};
+
+// ── Topbar ────────────────────────────────────────────────────────────────────
+export const Topbar = ({ title, theme, setTheme, onCmdK, rightSlot }) => {
+  const { language, setLanguage, t } = useI18n();
+  return (
+    <header style={{
+      height: 52, display: 'flex', alignItems: 'center', padding: '0 24px', gap: 12,
+      background: 'var(--bg-panel)', borderBottom: '1px solid var(--border)',
+      position: 'sticky', top: 0, zIndex: 10, flexShrink: 0,
+    }}>
+      <h1 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>{title}</h1>
+      {rightSlot}
+      <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)', fontSize: 12 }}>
+        <span>{t('language.label')}</span>
+        <select value={language} onChange={event => setLanguage(event.target.value)} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontSize: 12, padding: '5px 8px', borderRadius: 6, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}>
+          {SUPPORTED_LANGUAGES.map(code => <option key={code} value={code}>{t(`language.${code}`)}</option>)}
+        </select>
+      </label>
+      <button onClick={onCmdK} style={{
+        display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px', borderRadius: 6,
+        border: '1px solid var(--border)', background: 'var(--bg-surface)',
+        color: 'var(--text-muted)', fontSize: 12, cursor: 'pointer',
+      }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)'; }}>
+        <Icon name="search" size={12} />
+        <span>{t('topbar.search')}</span>
+        <kbd style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, padding: '1px 4px', borderRadius: 3, background: 'var(--bg-hover)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>⌘K</kbd>
+      </button>
+      <button onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} style={{
+        width: 32, height: 32, borderRadius: 6, border: '1px solid var(--border)',
+        background: 'transparent', cursor: 'pointer', color: 'var(--text-secondary)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
         onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-        <Icon name={collapsed ? 'chevronRight' : 'chevronLeft'} size={14} />
-        {!collapsed && 'Collapse'}
+        <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={14} />
       </button>
-    </div>
-  </aside>
-);
-
-// ── Topbar ────────────────────────────────────────────────────────────────────
-export const Topbar = ({ title, theme, setTheme, onCmdK, rightSlot }) => (
-  <header style={{
-    height: 52, display: 'flex', alignItems: 'center', padding: '0 24px', gap: 12,
-    background: 'var(--bg-panel)', borderBottom: '1px solid var(--border)',
-    position: 'sticky', top: 0, zIndex: 10, flexShrink: 0,
-  }}>
-    <h1 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>{title}</h1>
-    {rightSlot}
-    <button onClick={onCmdK} style={{
-      display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px', borderRadius: 6,
-      border: '1px solid var(--border)', background: 'var(--bg-surface)',
-      color: 'var(--text-muted)', fontSize: 12, cursor: 'pointer',
-    }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)'; }}>
-      <Icon name="search" size={12} />
-      <span>Search</span>
-      <kbd style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, padding: '1px 4px', borderRadius: 3, background: 'var(--bg-hover)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>⌘K</kbd>
-    </button>
-    <button onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} style={{
-      width: 32, height: 32, borderRadius: 6, border: '1px solid var(--border)',
-      background: 'transparent', cursor: 'pointer', color: 'var(--text-secondary)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}
-      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
-      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-      <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={14} />
-    </button>
-  </header>
-);
+    </header>
+  );
+};
 
 // ── Command Palette ───────────────────────────────────────────────────────────
 export const CommandPalette = ({ open, onClose, setPage }) => {
+  const { t } = useI18n();
   const [query, setQuery] = useState('');
   const [sel, setSel] = useState(0);
   const inputRef = useRef(null);
 
   const all = [
-    ...NAV_ITEMS.map(n => ({ type: 'page', id: n.id, label: n.label, icon: n.icon })),
+    ...NAV_ITEMS.map(n => ({ type: 'page', id: n.id, label: t(n.labelKey), icon: n.icon })),
     ...RUNS.map(r => ({ type: 'run', id: r.id, label: `${r.id} — ${r.task}`, sub: r.project, icon: r.mode === 'creative' ? 'film' : 'runs', status: r.status, mode: r.mode })),
-    ...PROJECTS.map(p => ({ type: 'project', id: p.id, label: p.name, sub: p.mode === 'creative' ? 'Creative' : 'Code', icon: 'projects', mode: p.mode })),
+    ...PROJECTS.map(p => ({ type: 'project', id: p.id, label: p.name, sub: p.mode === 'creative' ? t('mode.creative') : t('mode.code'), icon: 'projects', mode: p.mode })),
   ];
 
   const filtered = query ? all.filter(i => i.label.toLowerCase().includes(query.toLowerCase()) || (i.sub || '').toLowerCase().includes(query.toLowerCase())) : all.slice(0, 10);
@@ -291,13 +311,13 @@ export const CommandPalette = ({ open, onClose, setPage }) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 16px', borderBottom: '1px solid var(--border)' }}>
           <Icon name="search" size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
           <input ref={inputRef} value={query} onChange={updateQuery} onKeyDown={handleKey}
-            placeholder="Search runs, projects, pages..."
+            placeholder={t('palette.placeholder')}
             style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', padding: '14px 0', fontFamily: 'inherit' }} />
           {query && <button onClick={reset} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}><Icon name="x" size={14} /></button>}
         </div>
         <div style={{ maxHeight: 380, overflowY: 'auto', padding: '6px 0' }}>
           {filtered.length === 0
-            ? <div style={{ padding: '20px 16px', color: 'var(--text-muted)', fontSize: 13, textAlign: 'center' }}>{`No results for "${query}"`}</div>
+            ? <div style={{ padding: '20px 16px', color: 'var(--text-muted)', fontSize: 13, textAlign: 'center' }}>{t('palette.noResults', { query })}</div>
             : filtered.map((item, i) => (
               <button key={item.id + i} onClick={() => pick(item)} onMouseEnter={() => setSel(i)}
                 style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px', background: i === sel ? 'var(--bg-hover)' : 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
@@ -311,7 +331,7 @@ export const CommandPalette = ({ open, onClose, setPage }) => {
           }
         </div>
         <div style={{ padding: '8px 16px', borderTop: '1px solid var(--border)', display: 'flex', gap: 12 }}>
-          {[['↑↓','navigate'],['↵','select'],['esc','close']].map(([k,l]) => (
+          {[['↑↓', t('palette.navigate')], ['↵', t('palette.select')], ['esc', t('palette.close')]].map(([k,l]) => (
             <span key={k} style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
               <kbd style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, padding: '1px 4px', borderRadius: 3, background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>{k}</kbd>{l}
             </span>
@@ -324,7 +344,7 @@ export const CommandPalette = ({ open, onClose, setPage }) => {
 
 // ── Reusable layout helpers ───────────────────────────────────────────────────
 export const PageWrap = ({ children }) => (
-  <div style={{ padding: 24, maxWidth: 1440 }}>{children}</div>
+  <div style={{ padding: 24, width: '100%' }}>{children}</div>
 );
 
 export const SectionTitle = ({ children, action }) => (

@@ -3,10 +3,12 @@
 import React, { useState } from 'react';
 import { CONNECTORS, INSIGHTS, PROJECTS, RUNS } from '@/lib/afh-data';
 import { Button, ConnectorBadge, Icon, ModeBadge, PageWrap, SectionTitle, StatCard, StatusBadge } from '@/components/afh-ui';
+import { useI18n } from '@/components/i18n';
 
 // afh-dashboard.jsx — Dashboard (mixed Code + Creative Mode)
 
 const ActiveRunCard = ({ run, onClick }) => {
+  const { t } = useI18n();
   const [hov, setHov] = useState(false);
   const isCreative = run.mode === 'creative';
   const isReview = run.status === 'waiting_review';
@@ -23,8 +25,15 @@ const ActiveRunCard = ({ run, onClick }) => {
     <div onClick={onClick} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       style={{
         background: 'var(--bg-panel)', borderRadius: 8, cursor: 'pointer',
-        border: `1px solid ${hov ? accentColor : 'var(--border)'}`,
-        borderLeft: `4px solid ${accentColor}`,
+        borderStyle: 'solid',
+        borderTopWidth: 1,
+        borderRightWidth: 1,
+        borderBottomWidth: 1,
+        borderLeftWidth: 4,
+        borderTopColor: hov ? accentColor : 'var(--border)',
+        borderRightColor: hov ? accentColor : 'var(--border)',
+        borderBottomColor: hov ? accentColor : 'var(--border)',
+        borderLeftColor: accentColor,
         padding: '14px 16px', transition: 'border-color 80ms',
         animation: isReview ? 'review-pulse 3s infinite' : run.status === 'running' ? 'pulse-border 2s infinite' : 'none',
       }}>
@@ -53,15 +62,15 @@ const ActiveRunCard = ({ run, onClick }) => {
         <div style={{ height: '100%', width: `${pct}%`, background: accentColor, borderRadius: 2, transition: 'width 600ms' }} />
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Step {run.stepsDone}/{run.stepsTotal}</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t('dashboard.stepProgress', { done: run.stepsDone, total: run.stepsTotal })}</span>
         {isCreative && run.assetsPendingReview > 0 && (
           <span style={{ fontSize: 11, color: 'var(--status-review)', fontWeight: 500 }}>
-            {run.assetsPendingReview} assets pending review
+            {t('dashboard.assetsPending', { count: run.assetsPendingReview })}
           </span>
         )}
         {!isCreative && run.fixAttempts > 0 && (
           <span style={{ fontSize: 11, color: isEscalated ? 'var(--status-escalate)' : 'var(--text-muted)' }}>
-            Fix {run.fixAttempts}/{run.maxFix}
+            {t('dashboard.fixProgress', { attempts: run.fixAttempts, max: run.maxFix })}
           </span>
         )}
       </div>
@@ -75,7 +84,7 @@ const ActiveRunCard = ({ run, onClick }) => {
         }}>
           <Icon name="pause" size={12} style={{ color: 'var(--status-review)', flexShrink: 0 }} />
           <span style={{ fontSize: 12, color: 'var(--status-review)' }}>
-            Waiting for your review — {run.assetsPendingReview} asset{run.assetsPendingReview !== 1 ? 's' : ''} ready
+            {t('dashboard.waitingReview', { count: run.assetsPendingReview })}
           </span>
         </div>
       )}
@@ -88,7 +97,7 @@ const ActiveRunCard = ({ run, onClick }) => {
           display: 'flex', alignItems: 'center', gap: 8,
         }}>
           <Icon name="warning" size={12} style={{ color: 'var(--status-escalate)', flexShrink: 0 }} />
-          <span style={{ fontSize: 12, color: 'var(--status-escalate)' }}>Exceeded max fix attempts — intervention required</span>
+          <span style={{ fontSize: 12, color: 'var(--status-escalate)' }}>{t('dashboard.escalatedAlert')}</span>
         </div>
       )}
     </div>
@@ -129,6 +138,7 @@ const ConnectorStatusDot = ({ status }) => {
 };
 
 export const DashboardPage = ({ setPage, setSelectedRun }) => {
+  const { t } = useI18n();
   const s = INSIGHTS.todaySummary;
   const active = RUNS.filter(r => ['running', 'waiting_review', 'escalated'].includes(r.status));
   const recent = RUNS.filter(r => !['running', 'waiting_review', 'escalated'].includes(r.status)).slice(0, 8);
@@ -137,23 +147,23 @@ export const DashboardPage = ({ setPage, setSelectedRun }) => {
     <PageWrap>
       {/* Stats row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, marginBottom: 28 }}>
-        <StatCard label="Code Runs" value={s.codeRuns} sub={`${s.codeSuccess} success · ${s.codeFailed} failed`} />
-        <StatCard label="Creative Runs" value={s.creativeRuns} sub={`${s.creativeApproved} approved`} color="var(--mode-creative)" />
-        <StatCard label="Needs Review" value={s.needsReview} sub="creative assets waiting" color={s.needsReview > 0 ? 'var(--status-review)' : undefined} />
-        <StatCard label="Intervention" value={s.needsIntervention} sub="escalated code runs" color={s.needsIntervention > 0 ? 'var(--status-escalate)' : undefined} />
-        <StatCard label="Tokens" value={`${(s.tokensTotal / 1000).toFixed(0)}k`} sub="LLM usage today" />
-        <StatCard label="Est. Cost" value={`$${s.estimatedCost.toFixed(2)}`} sub="all connectors today" />
+        <StatCard label={t('dashboard.codeRuns')} value={s.codeRuns} sub={t('dashboard.codeRunsSub', { success: s.codeSuccess, failed: s.codeFailed })} />
+        <StatCard label={t('dashboard.creativeRuns')} value={s.creativeRuns} sub={t('dashboard.creativeRunsSub', { approved: s.creativeApproved })} color="var(--mode-creative)" />
+        <StatCard label={t('dashboard.needsReview')} value={s.needsReview} sub={t('dashboard.needsReviewSub')} color={s.needsReview > 0 ? 'var(--status-review)' : undefined} />
+        <StatCard label={t('dashboard.intervention')} value={s.needsIntervention} sub={t('dashboard.interventionSub')} color={s.needsIntervention > 0 ? 'var(--status-escalate)' : undefined} />
+        <StatCard label={t('dashboard.tokens')} value={`${(s.tokensTotal / 1000).toFixed(0)}k`} sub={t('dashboard.tokensSub')} />
+        <StatCard label={t('dashboard.estimatedCost')} value={`$${s.estimatedCost.toFixed(2)}`} sub={t('dashboard.costSub')} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, marginBottom: 28 }}>
         {/* Active runs */}
         <div>
-          <SectionTitle action={<Button variant="ghost" size="sm" onClick={() => setPage('runs')}>View all →</Button>}>
-            Active Runs
+          <SectionTitle action={<Button variant="ghost" size="sm" onClick={() => setPage('runs')}>{t('button.viewAll')} →</Button>}>
+            {t('dashboard.activeRuns')}
           </SectionTitle>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {active.length === 0
-              ? <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, background: 'var(--bg-panel)', borderRadius: 8, border: '1px solid var(--border)' }}>No active runs</div>
+              ? <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, background: 'var(--bg-panel)', borderRadius: 8, border: '1px solid var(--border)' }}>{t('dashboard.noActiveRuns')}</div>
               : active.map(run => <ActiveRunCard key={run.id} run={run} onClick={() => { setSelectedRun(run.id); setPage('runs'); }} />)
             }
           </div>
@@ -163,8 +173,8 @@ export const DashboardPage = ({ setPage, setSelectedRun }) => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Projects */}
           <div>
-            <SectionTitle action={<Button variant="ghost" size="sm" onClick={() => setPage('projects')}>All →</Button>}>
-              Projects
+            <SectionTitle action={<Button variant="ghost" size="sm" onClick={() => setPage('projects')}>{t('button.all')} →</Button>}>
+              {t('dashboard.projects')}
             </SectionTitle>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {PROJECTS.map(p => (
@@ -185,8 +195,8 @@ export const DashboardPage = ({ setPage, setSelectedRun }) => {
 
           {/* Connector status */}
           <div>
-            <SectionTitle action={<Button variant="ghost" size="sm" onClick={() => setPage('connectors')}>Manage →</Button>}>
-              Connectors
+            <SectionTitle action={<Button variant="ghost" size="sm" onClick={() => setPage('connectors')}>{t('button.manage')} →</Button>}>
+              {t('dashboard.connectors')}
             </SectionTitle>
             <div style={{ background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
               {CONNECTORS.map((c, i) => (
@@ -198,13 +208,13 @@ export const DashboardPage = ({ setPage, setSelectedRun }) => {
                   <span style={{ flex: 1, fontSize: 13, color: c.status === 'disconnected' ? 'var(--text-muted)' : 'var(--text-primary)' }}>{c.name}</span>
                   <ConnectorBadge type={c.type} />
                   {c.status === 'rate_limited' && (
-                    <span style={{ fontSize: 11, color: 'var(--status-warning)', fontFamily: 'JetBrains Mono, monospace' }}>reset {c.resetIn}</span>
+                    <span style={{ fontSize: 11, color: 'var(--status-warning)', fontFamily: 'JetBrains Mono, monospace' }}>{t('dashboard.rateLimitReset', { time: c.resetIn })}</span>
                   )}
                   {c.status === 'connected' && c.latencyAvg && (
                     <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>{c.latencyAvg}</span>
                   )}
                   {c.status === 'disconnected' && (
-                    <span style={{ fontSize: 11, color: 'var(--status-error)' }}>key expired</span>
+                    <span style={{ fontSize: 11, color: 'var(--status-error)' }}>{t('dashboard.keyExpired')}</span>
                   )}
                 </div>
               ))}
@@ -214,15 +224,15 @@ export const DashboardPage = ({ setPage, setSelectedRun }) => {
       </div>
 
       {/* Recent runs table */}
-      <SectionTitle action={<Button variant="ghost" size="sm" onClick={() => setPage('runs')}>View all →</Button>}>
-        Recent Runs
+      <SectionTitle action={<Button variant="ghost" size="sm" onClick={() => setPage('runs')}>{t('button.viewAll')} →</Button>}>
+        {t('dashboard.recentRuns')}
       </SectionTitle>
       <div style={{ background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              {['Run', 'Mode', 'Task', 'Project', 'Status', 'Duration', 'Usage'].map(h => (
-                <th key={h} style={{ padding: '8px 14px', textAlign: h === 'Duration' || h === 'Usage' ? 'right' : 'left', fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+              {[t('table.run'), t('table.mode'), t('table.task'), t('table.project'), t('table.status'), t('table.duration'), t('table.usage')].map((h, index) => (
+                <th key={h} style={{ padding: '8px 14px', textAlign: index >= 5 ? 'right' : 'left', fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
               ))}
             </tr>
           </thead>

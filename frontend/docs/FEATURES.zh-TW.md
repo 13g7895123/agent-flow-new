@@ -7,6 +7,7 @@
 - 使用 Bun 作為套件管理與開發指令執行工具。
 - 使用 Next.js App Router，首頁位於 `app/page.js`，主要互動介面由 `components/app-shell.jsx` 掛載。
 - 原本 `source` 裡的資料與畫面已拆成 `lib/afh-data.js`、`components/afh-ui.jsx`、`components/afh-dashboard.jsx`、`components/afh-runs.jsx`、`components/afh-creative.jsx`、`components/afh-pages.jsx`。
+- 多語系字典與 provider 集中在 `components/i18n.jsx`，目前支援繁體中文與英文。
 - 全域色彩、動畫、字體與 scrollbar 樣式集中在 `app/globals.css`。
 
 ## 核心功能
@@ -27,7 +28,9 @@
 ## 互動與使用體驗
 
 - 左側 sidebar 可收合，設定會保存到瀏覽器 `localStorage`。
-- 支援深色 / 淺色主題切換，主題偏好會保存到 `localStorage`。
+- 右側主內容區採滿版寬度呈現，適合大型表格、timeline 與設定面板瀏覽。
+- 支援繁體中文 / English 切換，預設語言為繁體中文，語言偏好會保存到 `localStorage`。
+- 支援淺色 / 深色主題切換，預設主題為淺色，主題偏好會保存到 `localStorage`。
 - 支援 command palette，可用 `Cmd/Ctrl + K` 搜尋頁面、runs 與 projects。
 - 多數卡片、表格列、審核面板與設定區塊都有 hover、展開、篩選或狀態切換互動。
 

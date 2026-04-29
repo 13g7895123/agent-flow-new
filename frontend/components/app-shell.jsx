@@ -3,28 +3,44 @@
 import { useEffect, useState } from 'react';
 import { CommandPalette, Sidebar, Topbar } from '@/components/afh-ui';
 import { DashboardPage } from '@/components/afh-dashboard';
+import { I18nProvider, useI18n } from '@/components/i18n';
 import { RunsListPage } from '@/components/afh-runs';
 import { ConnectorsPage, InsightsPage, ProjectsPage, RolesPage, SkillsPage } from '@/components/afh-pages';
 
 export default function AppShell() {
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState('light');
+  const [language, setLanguage] = useState('zh-TW');
   const [page, setPage] = useState('dashboard');
   const [collapsed, setCollapsed] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [selectedRun, setSelectedRun] = useState(null);
+  const [preferencesReady, setPreferencesReady] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      const savedTheme = window.localStorage.getItem('afh-theme');
-      const preferredTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      setTheme(savedTheme || preferredTheme);
+      const savedTheme = window.localStorage.getItem('afh-theme-mode');
+      const savedLanguage = window.localStorage.getItem('afh-language');
+      setTheme(savedTheme || 'light');
+      setLanguage(savedLanguage || 'zh-TW');
       setCollapsed(window.localStorage.getItem('afh-sidebar') === '1');
+      setPreferencesReady(true);
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
 
-  useEffect(() => { window.localStorage.setItem('afh-theme', theme); }, [theme]);
-  useEffect(() => { window.localStorage.setItem('afh-sidebar', collapsed ? '1' : '0'); }, [collapsed]);
+  useEffect(() => {
+    if (!preferencesReady) return;
+    window.localStorage.setItem('afh-theme-mode', theme);
+  }, [preferencesReady, theme]);
+  useEffect(() => {
+    if (!preferencesReady) return;
+    window.localStorage.setItem('afh-language', language);
+    document.documentElement.lang = language === 'zh-TW' ? 'zh-Hant' : 'en';
+  }, [language, preferencesReady]);
+  useEffect(() => {
+    if (!preferencesReady) return;
+    window.localStorage.setItem('afh-sidebar', collapsed ? '1' : '0');
+  }, [collapsed, preferencesReady]);
 
   useEffect(() => {
     const handler = (event) => {
@@ -99,14 +115,35 @@ export default function AppShell() {
     document.body.style.transition = 'background 200ms, color 200ms';
   }, [theme]);
 
+  return (
+    <I18nProvider language={language} setLanguage={setLanguage}>
+      <AppContent
+        theme={theme}
+        setTheme={setTheme}
+        page={page}
+        setPage={setPage}
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+        cmdOpen={cmdOpen}
+        setCmdOpen={setCmdOpen}
+        selectedRun={selectedRun}
+        setSelectedRun={setSelectedRun}
+      />
+    </I18nProvider>
+  );
+}
+
+function AppContent({ theme, setTheme, page, setPage, collapsed, setCollapsed, cmdOpen, setCmdOpen, selectedRun, setSelectedRun }) {
+  const { t } = useI18n();
+
   const pageTitles = {
-    dashboard: 'Dashboard',
-    runs: 'Runs',
-    roles: 'Roles & Prompts',
-    skills: 'Skills',
-    connectors: 'Agent Connectors',
-    projects: 'Projects',
-    insights: 'Insights',
+    dashboard: t('nav.dashboard'),
+    runs: t('nav.runs'),
+    roles: t('nav.roles'),
+    skills: t('nav.skills'),
+    connectors: t('nav.connectors'),
+    projects: t('nav.projects'),
+    insights: t('nav.insights'),
   };
 
   const setPageAndResetRun = (nextPage) => {
