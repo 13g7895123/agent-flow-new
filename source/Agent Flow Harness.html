@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Flow Harness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base: #0c0c0e;
+      --bg-panel: #131316;
+      --bg-surface: #1c1c21;
+      --bg-hover: #24242b;
+      --bg-active: #2c2c35;
+      --border: #2e2e38;
+      --border-subtle: #232329;
+      --text-primary: #ededf0;
+      --text-secondary: #8c8c9e;
+      --text-muted: #4c4c5e;
+      --accent: #5b7cf6;
+      --accent-hover: #7090f8;
+      --accent-subtle: rgba(91,124,246,0.12);
+      --status-success: #34d399;
+      --status-warning: #fbbf24;
+      --status-error: #f87171;
+      --status-escalate: #fb923c;
+      --status-running: #60a5fa;
+      --status-review: #c084fc;
+      --syntax-variable: #a78bfa;
+      --syntax-string: #86efac;
+      --syntax-comment: #4c4c5e;
+      --syntax-keyword: #67e8f9;
+      --mode-code: #60a5fa;
+      --mode-creative: #f472b6;
+      --preview-bg: #1a1a1a;
+    }
+
+    html, body { height: 100%; min-width: 1280px; }
+    body {
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #root { height: 100%; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.8); }
+    }
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(96,165,250,0.0); }
+      50%       { box-shadow: 0 0 0 3px rgba(96,165,250,0.15); }
+    }
+    @keyframes review-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(192,132,252,0.0); }
+      50%       { box-shadow: 0 0 0 3px rgba(192,132,252,0.18); }
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Reset for buttons/inputs */
+    button { font-family: inherit; }
+    input, textarea, select { font-family: inherit; color: inherit; }
+
+    /* text-wrap */
+    p, li, td, th { text-wrap: pretty; }
+
+    /* Geist font fallback via CSS variable trick */
+    @font-face {
+      font-family: 'Geist Sans';
+      src: local('Geist'), local('GeistVF'), local('-apple-system'), local('BlinkMacSystemFont');
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + Babel -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- Data -->
+  <script type="text/babel" src="afh-data.jsx"></script>
+  <!-- UI components -->
+  <script type="text/babel" src="afh-ui.jsx"></script>
+  <!-- Pages -->
+  <script type="text/babel" src="afh-dashboard.jsx"></script>
+  <script type="text/babel" src="afh-runs.jsx"></script>
+  <script type="text/babel" src="afh-creative.jsx"></script>
+  <script type="text/babel" src="afh-pages.jsx"></script>
+  <!-- App shell -->
+  <script type="text/babel" src="afh-main.jsx"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-base: #0c0c0e;
+  --bg-panel: #131316;
+  --bg-surface: #1c1c21;
+  --bg-hover: #24242b;
+  --bg-active: #2c2c35;
+  --border: #2e2e38;
+  --border-subtle: #232329;
+  --text-primary: #ededf0;
+  --text-secondary: #8c8c9e;
+  --text-muted: #4c4c5e;
+  --accent: #5b7cf6;
+  --accent-hover: #7090f8;
+  --accent-subtle: rgba(91,124,246,0.12);
+  --status-success: #34d399;
+  --status-warning: #fbbf24;
+  --status-error: #f87171;
+  --status-escalate: #fb923c;
+  --status-running: #60a5fa;
+  --status-review: #c084fc;
+  --syntax-variable: #a78bfa;
+  --syntax-string: #86efac;
+  --syntax-comment: #4c4c5e;
+  --syntax-keyword: #67e8f9;
+  --mode-code: #60a5fa;
+  --mode-creative: #f472b6;
+  --preview-bg: #1a1a1a;
+  --font-geist-sans: 'Geist Sans';
+  --font-geist-mono: 'JetBrains Mono';
+}
+
+html, body { height: 100%; min-width: 1280px; }
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: tabular-nums;
+}
+
+button { font-family: inherit; }
+input, textarea, select { font-family: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+p, li, td, th { text-wrap: pretty; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(96,165,250,0.0); }
+  50% { box-shadow: 0 0 0 3px rgba(96,165,250,0.15); }
+}
+@keyframes review-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192,132,252,0.0); }
+  50% { box-shadow: 0 0 0 3px rgba(192,132,252,0.18); }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@font-face {
+  font-family: 'Geist Sans';
+  src: local('Geist'), local('GeistVF'), local('-apple-system'), local('BlinkMacSystemFont');
+}
