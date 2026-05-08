@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: afh
+      POSTGRES_PASSWORD: afh
+      POSTGRES_DB: afh
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U afh -d afh"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: postgres://afh:afh@db:5432/afh
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      AFH_MODEL: ${AFH_MODEL:-claude-sonnet-4-6}
+      AFH_MAX_TOKENS: ${AFH_MAX_TOKENS:-8192}
+      AFH_PORT: 3001
+      RUST_LOG: ${RUST_LOG:-info,afh_backend=debug}
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 10s
+      retries: 6
+
+  # web 只在啟用 "full" profile 時才啟動：
+  #   docker compose up                 # 只起 db + api（dev 模式 — frontend 跑在 host）
+  #   docker compose --profile full up  # 全容器（Day 4 完成後才能用）
+  web:
+    profiles: ["full"]
+    build:
+      context: ./frontend
+    environment:
+      AFH_BACKEND_URL: http://api:3001
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pg_data:

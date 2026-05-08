@@ -1,0 +1,19 @@
+# 環境變數（含 secrets）
+.env
+.env.local
+.env.*.local
+
+# 後端 build 產出
+backend/target/
+
+# Docker volumes 本地掛載
+data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
